@@ -1,0 +1,6 @@
+- name: Clean test environments
+  hosts: all
+  gather_facts: false
+  become: true
+  roles:
+    - cleaner

@@ -1,0 +1,78 @@
+---
+- name: Application servers
+  hosts: apps
+  gather_facts: false
+  roles:
+    - common
+  post_tasks:
+    - name: Ensure httpd is the installed/latest
+      become: yes
+      yum:
+        name: httpd
+        state: latest
+      tags:
+        - httpd
+        - webservice
+    - name: Ensure httpd is enabled at boot and started
+      become: yes
+      service:
+        name: httpd
+        enabled: yes
+        state: started
+      tags:
+        - httpd
+        - webservice
+    - name: Ensure tomcat is the installed/latest
+      become: yes
+      yum:
+        name: tomcat
+        state: latest
+      tags:
+        - tomcat
+        - webservice
+    - name: Ensure tomcat is enabled at boot and started
+      become: yes
+      service:
+        name: tomcat
+        enabled: yes
+        state: started
+      tags:
+        - tomcat
+        - webservice
+    - name: Ensure tomcat root directory exists
+      become: yes
+      file:
+        path: /usr/share/tomcat/webapps/ROOT
+        state: directory
+      tags:
+        - tomcat
+        - webservice
+    - name: Ensure website root html file is the latest
+      become: yes
+      template:
+        src: templates/index.html.j2
+        dest: /usr/share/tomcat/webapps/ROOT/index.html
+        mode: 0644
+      tags:
+        - tomcat
+        - webservice
+        - index-file
+    - name: Ensure ansible tomcat directory exists
+      file:
+        path: /usr/share/tomcat/webapps/ansible/
+        state: directory
+        mode: 0744
+      tags:
+        - tomcat
+        - webservice
+        - index-file
+    - name: Ensure ansible tomcat static index html is latest
+      become: yes
+      template:
+        src: templates/index.html.j2
+        dest: /usr/share/tomcat/webapps/ansible/index.html
+      tags:
+        - tomcat
+        - webservice
+        - index-file
+...

@@ -1,0 +1,48 @@
+---
+- name: Frontend serves
+  hosts: frontends
+  gather_facts: false
+  vars:
+    app_servers: "{{ groups['apps'] }}"
+  roles:
+    - common
+  post_tasks:
+  - name: Ensure httpie is the latest
+    become: yes
+    yum:
+      name: httpie
+      state: latest
+    tags:
+      - haproxy
+  - name: Ensure haproxy is installed/latest
+    become: yes
+    yum:
+      name: haproxy
+      state: latest
+    tags:
+      - haproxy
+  - name: Ensure haproxy is enabled at boot and started
+    become: yes
+    service:
+      name: haproxy
+      enabled: yes
+      state: started
+    tags:
+      - haproxy
+  - name: Ensure haproxy config is the latest
+    become: yes
+    template:
+      src: templates/haproxy.cfg.j2
+      dest: /etc/haproxy/haproxy.cfg
+    notify:
+      - restart haproxy
+    tags:
+      - haproxy
+      - haproxy-template
+  handlers:
+    - name: restart haproxy
+      become: yes
+      service:
+        name: haproxy
+        state: restarted
+...

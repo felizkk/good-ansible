@@ -1,0 +1,6 @@
+---
+# Top level YAML File to manage all servers
+- import_playbook: frontends.yml
+- import_playbook: apps.yml
+- import_playbook: appdbs.yml
+...
